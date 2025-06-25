@@ -5,6 +5,16 @@ Today we will see a demo of Strands Agents which is a simple yet powerful SDK th
 
 This demo is a a simple command-line demonstration of multi-tool AI agent consolidation using the **Strands agents** framework. Shows how an AI agent can use multiple specialized tools to handle complex insurance claims in a single, consolidated response.
 
+> Note : There is a UI version of this demo available, please see below for instructions to run it. 
+
+## Prerequisite
+
+1. Python 3.13.3 or higher
+2. aws-cli/2.26.7 or higher
+3. If running on local aws credentials and if cloud then required IAM role 
+4. boto3 1.38.18 or higher
+5. botocore 1.38.18 or higher
+
 ## Architecture
 
 ## ![alt text](architecture.png)
@@ -23,7 +33,7 @@ This demo is a a simple command-line demonstration of multi-tool AI agent consol
 
 ## 🚀 Quick Start
 
-> Note : For the demo we used local database but for real world scenarions, please use database services like DynamoDB etc. or Amazon Bedrock Knowledge Base with proper authentication and authorizations for applications as well. This is an art of possible which can be scaled easily. 
+> **Note:** This demo uses in-memory data structures for simplicity. In production environments, integrate with enterprise-grade services such as Amazon DynamoDB for customer data, Amazon RDS for transactional claims, and Amazon Bedrock Knowledge Bases for policy documentation. Strands agents are built to be production-ready and can be deployed locally for development, behind APIs using AWS Lambda/Fargate/EC2 with API Gateway for scalable applications, with tool isolation for enhanced security, or using a return-of-control model where clients manage tool execution while agents focus on reasoning. Implement proper rate limiting, authentication (AWS Cognito), authorization (IAM), and encryption (KMS) for production deployments. This demonstration represents the foundational patterns that scale seamlessly to enterprise infrastructure with full API management and flexible deployment capabilities.
 
 ### **Defining agent underlying LLM model**
 
@@ -301,6 +311,15 @@ Press Enter for menu...
 6. 🆕 No Details Given - Agent Asks Questions
 7. 📊 New Claim + Update Summary + Status
 8. Exit
+```
+
+### **Run the UI Demo**
+```bash
+
+pip install --upgrade gradio
+
+
+python gradio_ui_demo.py
 ```
 
 ## 💡 Key Learning Points
