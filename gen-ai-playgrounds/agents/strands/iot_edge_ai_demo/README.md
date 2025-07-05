@@ -2,14 +2,17 @@
 
 An innovative **architecture framework** I developed to demonstrate **"Small Language Models are the Future of Agentic AI"** (NVIDIA Research) through intelligent edge-cloud AI orchestration. This **code example** showcases what you can build with the framework, starting with industrial IoT monitoring.
 
+**Powered by [Strands Agents](https://strandsagents.com/latest/)** - A production-ready agentic AI framework for building intelligent applications.
+
 ## Framework Overview
 
-I created the **Agentic Edge Intelligence Framework (AEIF)** as an architecture framework for building intelligent AI applications. This **code example** demonstrates the framework's capabilities through IoT monitoring, but AEIF can be used to build applications for any domain requiring intelligent AI model routing:
+I created the **Agentic Edge Intelligence Framework (AEIF)** as an architecture framework for building intelligent AI applications using **[Strands Agents](https://strandsagents.com/latest/)**. This **code example** demonstrates the framework's capabilities through IoT monitoring, but AEIF can be used to build applications for any domain requiring intelligent AI model routing:
 
 - 🏠 **Edge Processing**: Local telemetry monitoring + vision analysis (fast, private)
 - ☁️ **Cloud Processing**: Expert insights and complex analysis (when needed)
-- 🧠 **Smart Agent**: Automatically routes requests to the right AI model
+- 🧠 **Smart Agent**: Automatically routes requests to the right AI model (powered by Strands)
 - 🔧 **Extensible Design**: Framework for building similar applications in any domain
+- ⚡ **Enterprise Ready**: Built on Strands Agents for production deployment
 
 ## Architecture
 
