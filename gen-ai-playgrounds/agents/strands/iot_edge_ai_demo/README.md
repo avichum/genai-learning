@@ -25,6 +25,9 @@ User Request → Smart Agent → Intelligent Model Selection
 (Adaptive)      (Adaptive)     (Cloud/API)
 ```
 
+![Tux, the Linux mascot](AAIF.drawio.png)
+
+
 **Key Insight:** The same intelligence patterns work whether you're deploying on edge devices, cloud infrastructure, or hybrid environments.
 
 ## Quick Start
