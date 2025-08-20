@@ -20,3 +20,29 @@ aws s3vectors delete-index --vector-bucket-name "fashion-demo-bucket" --index-na
 
 aws s3vectors delete-vector-bucket --vector-bucket-name "fashion-demo-bucket"
 
+
+Bucket cors 
+
+[
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "GET",
+            "PUT",
+            "POST",
+            "DELETE",
+            "HEAD"
+        ],
+        "AllowedOrigins": [
+            "*"
+        ],
+        "ExposeHeaders": [
+            "ETag",
+            "x-amz-meta-custom-header"
+        ],
+        "MaxAgeSeconds": 3000
+    }
+]
+
