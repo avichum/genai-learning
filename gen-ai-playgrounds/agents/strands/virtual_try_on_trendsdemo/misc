@@ -1,0 +1,22 @@
+S3 buckets in us-east 1
+
+tryon-results-bucket - to store the results 
+fashion-catalog - to store images
+
+Model access 
+
+amazon.titan-embed-text-v2:0 - for embeddings
+amazon.nova-canvas-v1:0 - for VTO
+
+
+aws s3vectors delete-index --vector-bucket-name "fashion-demo-bucket1" --index-name "fashion-trends-index1"
+
+
+aws s3vectors delete-vector-bucket --vector-bucket-name "fashion-demo-bucket1"
+
+
+aws s3vectors delete-index --vector-bucket-name "fashion-demo-bucket" --index-name "fashion-trends-index"
+
+
+aws s3vectors delete-vector-bucket --vector-bucket-name "fashion-demo-bucket"
+
