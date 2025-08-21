@@ -13,7 +13,7 @@ This workshop shows how AI agents can work together to build software from a sim
 ## How to Run
 
 ```bash
-python workshop.py
+python strands_dev_pipeline.py
 ```
 
 The system will:
