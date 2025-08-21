@@ -10,6 +10,34 @@ This workshop shows how AI agents can work together to build software from a sim
 2. **Design Architect** - Reads requirements and creates system design 
 3. **Code Developer** - Reads design and generates working code files
 
+# Tool Consent and Bypassing
+
+By default, certain tools that perform potentially sensitive operations (like file modifications, shell commands, or code execution) will prompt for user confirmation before executing. This safety feature ensures users maintain control over actions that could modify their system.
+
+To bypass these confirmation prompts, you can set the `BYPASS_TOOL_CONSENT` environment variable:
+
+```bash
+# Set this environment variable to bypass tool confirmation prompts
+export BYPASS_TOOL_CONSENT=true
+```
+
+Setting the environment variable within Python:
+
+```python
+import os
+
+os.environ["BYPASS_TOOL_CONSENT"] = "true"
+```
+
+When this variable is set to `true`, tools will execute without asking for confirmation. This is particularly useful for:
+
+* Automated workflows where user interaction isn't possible
+* Development and testing environments
+* CI/CD pipelines
+* Situations where you've already validated the safety of operations
+
+**Note:** Use this feature with caution in production environments, as it removes an important safety check.
+
 ## How to Run
 
 ```bash
