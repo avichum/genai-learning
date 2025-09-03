@@ -62,4 +62,5 @@ Focus on practical insights for industrial operations teams."""
 if __name__ == "__main__":
     # Run the server with HTTP transport on port 8003
     print("🔧 Starting Expert Insights MCP Server on port 8003...")
-    mcp.run(transport="http", host="127.0.0.1", port=8003, path="/mcp")
+    #mcp.run(transport="http", host="127.0.0.1", port=8003, path="/mcp")
+    mcp.run(transport="http", host="0.0.0.0", port=8003, path="/mcp")
