@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Edge AI Monitoring</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .config-item {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .config-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .config-value {
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        .examples {
+            margin-top: 1.5rem;
+        }
+
+        .example-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .example-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .chat-container {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: 500px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message.assistant {
+            text-align: left;
+        }
+
+        .message-content {
+            display: inline-block;
+            padding: 1rem 1.25rem;
+            border-radius: 18px;
+            max-width: 85%;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+
+        .input-container {
+            padding: 1.5rem;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            resize: none;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-input-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            background: #6c757d;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-label:hover {
+            background: #5a6268;
+        }
+
+        .file-name {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            height: fit-content;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #667eea;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e9ecef;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .devices-list {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .device-item {
+            padding: 0.5rem;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #28a745;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .device-item:hover {
+            background: #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            
+            .chat-container {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏭 IoT Edge AI Monitoring</h1>
+        <div class="subtitle">Connected Edge Intelligence • Real-time Monitoring • Expert Analysis</div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <h3>🤖 System Configuration</h3>
+            <div id="config-info">
+                <div class="config-item">
+                    <div class="config-label">Main Agent Model</div>
+                    <div class="config-value" id="main-model">Loading...</div>
+                </div>
+                <div class="config-item">
+                    <div class="config-label">Vision Model</div>
+                    <div class="config-value" id="vision-model">Loading...</div>
+                </div>
+                <div class="config-item">
+                    <div class="config-label">Cloud Model</div>
+                    <div class="config-value" id="cloud-model">Loading...</div>
+                </div>
+            </div>
+
+            <div class="examples">
+                <h3>💡 Quick Examples</h3>
+                <button class="example-btn" onclick="sendExample('What is the temperature of PUMP-001?')">
+                    📊 Check Pump Temperature
+                </button>
+                <button class="example-btn" onclick="sendExample('Show me status of HVAC-102')">
+                    🌡️ HVAC System Status
+                </button>
+                <button class="example-btn" onclick="sendExample('Check storage used for CAM-203')">
+                    📹 Camera Storage Check
+                </button>
+                <button class="example-btn" onclick="sendExample('Best practices for monitoring conveyor belts?')">
+                    🧠 Expert Insights
+                </button>
+            </div>
+
+            <div class="devices-list">
+                <h3>🏭 Available Devices</h3>
+                <div id="devices-container">Loading devices...</div>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <h2>💬 Chat Interface</h2>
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>System Online</span>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="message assistant">
+                    <div class="message-content">
+                        Welcome to the IoT Edge AI Monitoring System! 🚀
+                        <br><br>
+                        I can help you with:
+                        <br>• 📡 Device telemetry monitoring (PUMP-001, HVAC-102, CAM-203)
+                        <br>• 📷 Image analysis with vision AI
+                        <br>• 🧠 Expert insights for complex questions
+                        <br><br>
+                        Try asking about device status or upload an image for analysis!
+                    </div>
+                    <div class="message-time">System • Just now</div>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-group">
+                    <div class="file-input-container">
+                        <input type="file" id="file-input" class="file-input" accept="image/*">
+                        <label for="file-input" class="file-label">📎 Upload Image</label>
+                        <span class="file-name" id="file-name"></span>
+                    </div>
+                    <textarea 
+                        id="chat-input" 
+                        class="chat-input" 
+                        placeholder="Ask about device status, upload an image, or get expert insights..."
+                        rows="1"
+                    ></textarea>
+                </div>
+                <button id="send-btn" class="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFile = null;
+
+        // Load configuration and devices on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+            loadDevices();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Auto-resize textarea
+            const textarea = document.getElementById('chat-input');
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+
+            // Send on Enter (but not Shift+Enter)
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // File input handling
+            document.getElementById('file-input').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    currentFile = file;
+                    document.getElementById('file-name').textContent = file.name;
+                }
+            });
+        }
+
+        async function loadConfig() {
+            try {
+                const response = await fetch('/config');
+                const config = await response.json();
+                
+                document.getElementById('main-model').textContent = config.main_model;
+                document.getElementById('vision-model').textContent = config.vision_model;
+                document.getElementById('cloud-model').textContent = config.cloud_model;
+            } catch (error) {
+                console.error('Failed to load config:', error);
+            }
+        }
+
+        async function loadDevices() {
+            try {
+                const response = await fetch('/devices');
+                const data = await response.json();
+                const container = document.getElementById('devices-container');
+                
+                container.innerHTML = data.devices.map(device => 
+                    `<div class="device-item" onclick="sendExample('Check status of ${device}')">${device}</div>`
+                ).join('');
+            } catch (error) {
+                console.error('Failed to load devices:', error);
+                document.getElementById('devices-container').innerHTML = 'Failed to load devices';
+            }
+        }
+
+        function addMessage(content, isUser = false, timestamp = null) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            const timeString = timestamp || new Date().toLocaleTimeString();
+            const sender = isUser ? 'You' : 'Agent';
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">${content}</div>
+                <div class="message-time">${sender} • ${timeString}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showLoading() {
+            const messagesContainer = document.getElementById('chat-messages');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message assistant';
+            loadingDiv.id = 'loading-message';
+            loadingDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <span>Processing your request...</span>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(loadingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideLoading() {
+            const loadingMessage = document.getElementById('loading-message');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+            const message = input.value.trim();
+            
+            if (!message && !currentFile) return;
+
+            // Disable input while processing
+            sendBtn.disabled = true;
+            input.disabled = true;
+            
+            try {
+                if (currentFile) {
+                    // Handle file upload
+                    addMessage(`📎 Analyzing image: ${currentFile.name}`, true);
+                    showLoading();
+                    
+                    const formData = new FormData();
+                    formData.append('file', currentFile);
+                    
+                    const response = await fetch('/upload-image', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    hideLoading();
+                    
+                    // Format response with markdown-like styling
+                    const formattedResponse = formatResponse(data.response);
+                    addMessage(formattedResponse);
+                    addProcessingInfo(data.processing_time);
+                    
+                    // Clear file
+                    currentFile = null;
+                    document.getElementById('file-input').value = '';
+                    document.getElementById('file-name').textContent = '';
+                } else {
+                    // Handle text message
+                    addMessage(message, true);
+                    showLoading();
+                    
+                    const response = await fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: message })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    hideLoading();
+                    
+                    // Format response with markdown-like styling
+                    const formattedResponse = formatResponse(data.response);
+                    addMessage(formattedResponse);
+                    addProcessingInfo(data.processing_time);
+                }
+                
+                // Clear input
+                input.value = '';
+                input.style.height = 'auto';
+                
+            } catch (error) {
+                hideLoading();
+                addMessage(`❌ Error: ${error.message}`, false);
+            } finally {
+                // Re-enable input
+                sendBtn.disabled = false;
+                input.disabled = false;
+                input.focus();
+            }
+        }
+
+        function formatResponse(response) {
+            // Convert markdown-like formatting to HTML
+            return response
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>')
+                .replace(/• /g, '&nbsp;&nbsp;• ');
+        }
+
+        function addProcessingInfo(processingTime) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const infoDiv = document.createElement('div');
+            infoDiv.style.textAlign = 'center';
+            infoDiv.style.margin = '0.5rem 0';
+            infoDiv.style.fontSize = '0.75rem';
+            infoDiv.style.color = '#6c757d';
+            infoDiv.innerHTML = `⚡ Processed in ${processingTime.toFixed(2)}s`;
+            
+            messagesContainer.appendChild(infoDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function sendExample(exampleText) {
+            document.getElementById('chat-input').value = exampleText;
+            sendMessage();
+        }
+    </script>
+</body>
+</html>
