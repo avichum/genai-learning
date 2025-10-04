@@ -93,7 +93,7 @@ aws configure
 python main.py
 
 # Open frontend
-# Open index.html in browser
+# Open podcast_frontend.html in browser
 ```
 
 ## 🎮 Usage
@@ -106,7 +106,7 @@ python main.py
 
 ```
 ├── main.py        # FastAPI backend (2 endpoints)
-├── index.html     # Frontend UI
+├── podcast_frontend.html     # Frontend UI
 └── README.md      # This file
 ```
 
@@ -118,7 +118,7 @@ voice_id = 'Matthew' if line.speaker == 'ALEX' else 'Ruth'
 # Options: Matthew, Ruth, Stephen, Gregory
 ```
 
-**Adjust Timing** (`index.html`):
+**Adjust Timing** (`podcast_frontend.html`):
 ```javascript
 pauseDuration = 200;  // Reactions: "Yeah!", "Wow!"
 pauseDuration = 400;  // Questions
