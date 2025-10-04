@@ -4,7 +4,7 @@ Generate natural, conversational podcasts on any topic using AI. Enter a topic a
 
 ## ✨ Features
 
-- 🤖 AI-generated scripts with natural dialogue (Claude 3)
+- 🤖 AI-generated scripts with natural dialogue (Claude Sonnet 4)
 - 🎵 Realistic AI voices (Amazon Polly Generative)
 - ⚡ Instant playback while generating
 - 🎭 Natural timing with reactions and pauses
