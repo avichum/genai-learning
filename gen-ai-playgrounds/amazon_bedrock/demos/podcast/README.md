@@ -55,7 +55,7 @@ Generate natural, conversational podcasts on any topic using AI. Enter a topic a
 
 ## 🤖 What the AI Does
 
-**Bedrock (Claude 3)** creates the script:
+**Bedrock (Claude Sonnet 4)** creates the script:
 - Two hosts: Alex (enthusiastic) & Sam (knowledgeable)
 - Natural reactions: "Wow!", "Right?", "Exactly!"
 - Proper structure: welcome intro → discussion → thank you outro
@@ -83,7 +83,7 @@ aws configure
 
 ### 3. Enable AWS Services
 
-- **Bedrock:** AWS Console → Bedrock → Model access → Enable "Claude 3 Sonnet"
+- **Bedrock:** AWS Console → Bedrock → Model access → Enable "Claude Sonnet 4"
 - **Polly:** Ensure generative voices available in your region
 
 ### 4. Run
