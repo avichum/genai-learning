@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Podcast Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .script-container {
+            margin-top: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .script-line {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .script-line.alex {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+        }
+
+        .script-line.sam {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+        }
+
+        .script-line.playing {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .speaker {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .text {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ AI Podcast Generator</h1>
+        
+        <div class="input-group">
+            <label for="topic">Podcast Topic</label>
+            <input 
+                type="text" 
+                id="topic" 
+                placeholder="e.g., The Future of Artificial Intelligence"
+                value="The Future of Artificial Intelligence"
+            >
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="generateBtn" onclick="generateScript()">
+                Generate Podcast
+            </button>
+            <button class="btn btn-stop" id="playBtn" onclick="playPodcast()" disabled>
+                Play Podcast
+            </button>
+            <button class="btn btn-stop" id="stopBtn" onclick="stopPodcast()" disabled>
+                Stop
+            </button>
+        </div>
+
+        <div id="scriptContainer" class="script-container"></div>
+    </div>
+
+    <audio id="audioPlayer" style="display: none;"></audio>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let script = [];
+        let currentIndex = 0;
+        let isPlaying = false;
+        let audioCache = [];
+
+        async function generateScript() {
+            const topic = document.getElementById('topic').value;
+            if (!topic.trim()) {
+                alert('Please enter a topic');
+                return;
+            }
+
+            const generateBtn = document.getElementById('generateBtn');
+            const scriptContainer = document.getElementById('scriptContainer');
+            
+            generateBtn.disabled = true;
+            scriptContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Generating podcast script...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/generate-script`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ topic })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Server error');
+                }
+
+                const data = await response.json();
+                
+                if (!data.script || !Array.isArray(data.script)) {
+                    throw new Error('Invalid response format');
+                }
+                
+                script = data.script;
+                audioCache = [];
+                
+                displayScript();
+                document.getElementById('playBtn').disabled = false;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                scriptContainer.innerHTML = `<div class="loading">Error: ${error.message}<br><br>Make sure:<br>1. FastAPI server is running<br>2. AWS credentials are configured<br>3. You have Bedrock access</div>`;
+            } finally {
+                generateBtn.disabled = false;
+            }
+        }
+
+        function displayScript() {
+            const container = document.getElementById('scriptContainer');
+            container.innerHTML = '';
+
+            if (!script || script.length === 0) {
+                container.innerHTML = '<div class="loading">No script generated yet.</div>';
+                return;
+            }
+
+            script.forEach((line, index) => {
+                const div = document.createElement('div');
+                div.className = `script-line ${line.speaker.toLowerCase()}`;
+                div.id = `line-${index}`;
+                div.innerHTML = `
+                    <div class="speaker">${line.speaker}</div>
+                    <div class="text">${line.text}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function playPodcast() {
+            if (script.length === 0) return;
+
+            isPlaying = true;
+            currentIndex = 0;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('generateBtn').disabled = true;
+
+            // Start generating audio in the background while playing
+            generateAudioQueue();
+            
+            // Start playing immediately as audio becomes available
+            await playNextLine();
+        }
+
+        async function generateAudioQueue() {
+            // Generate audio files one by one and add to cache
+            for (let i = 0; i < script.length; i++) {
+                if (audioCache[i]) continue; // Skip if already cached
+
+                try {
+                    const response = await fetch(`${API_URL}/synthesize-speech`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(script[i])
+                    });
+
+                    const audioBlob = await response.blob();
+                    audioCache[i] = URL.createObjectURL(audioBlob);
+                    
+                    console.log(`Audio ${i + 1}/${script.length} generated`);
+                } catch (error) {
+                    console.error(`Error generating audio ${i}:`, error);
+                }
+            }
+        }
+
+        async function playNextLine() {
+            if (!isPlaying || currentIndex >= script.length) {
+                stopPodcast();
+                return;
+            }
+
+            // Highlight current line
+            document.querySelectorAll('.script-line').forEach(el => {
+                el.classList.remove('playing');
+            });
+            document.getElementById(`line-${currentIndex}`).classList.add('playing');
+
+            try {
+                // Wait for audio to be generated if not ready yet
+                while (!audioCache[currentIndex] && isPlaying) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                if (!isPlaying) return; // Check if stopped while waiting
+
+                // Play audio from cache
+                const audio = document.getElementById('audioPlayer');
+                audio.src = audioCache[currentIndex];
+                
+                const currentText = script[currentIndex].text.toLowerCase();
+                
+                // Determine pause duration based on content
+                let pauseDuration = 500; // Default pause
+                
+                // Short reactions get minimal pause (more natural overlap feel)
+                const shortReactions = ['yeah', 'mm-hmm', 'uh-huh', 'oh', 'wow', 'really', 'right', 'exactly', 'hmm', 'i see', 'nice', 'cool', 'sure'];
+                const isShortReaction = shortReactions.some(reaction => 
+                    currentText === reaction || 
+                    currentText === reaction + '!' || 
+                    currentText === reaction + '.'
+                );
+                
+                if (isShortReaction) {
+                    pauseDuration = 200; // Quick transition for reactions
+                } else if (currentText.endsWith('?')) {
+                    pauseDuration = 400; // Shorter pause after questions
+                } else if (currentText.length > 100) {
+                    pauseDuration = 600; // Slightly longer pause after long statements
+                }
+                
+                audio.onended = () => {
+                    currentIndex++;
+                    setTimeout(() => playNextLine(), pauseDuration);
+                };
+
+                await audio.play();
+
+            } catch (error) {
+                console.error('Error playing audio:', error);
+                stopPodcast();
+            }
+        }
+
+        function stopPodcast() {
+            isPlaying = false;
+            const audio = document.getElementById('audioPlayer');
+            audio.pause();
+            audio.currentTime = 0;
+
+            document.querySelectorAll('.script-line').forEach(el => {
+                el.classList.remove('playing');
+            });
+
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('generateBtn').disabled = false;
+        }
+    </script>
+</body>
+</html>
